@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios, { all } from 'axios';
 import 'aos/dist/aos.css';
 
 function Search() {
+  const [departureAirport, setDepartAirport] = useState("");
+  const [arrivalAirport, setArriveAirport] = useState("");
+  const [departureDate, setDepartDateTime] = useState("");
+  const [arrivalDate, setArriveDateTime] = useState("");
+  const [flights, setFlights] = useState([]);
 
-  const [departureAirport, setDepartureAirport] = useState("");
-  const [arrivalAirport, setArrivalAirport] = useState("");
-  const [departureDate, setDepartureDate] = useState("");
-  const [arrivalDate, setArrivalDate] = useState("");
-  const [departingFlights, setDepartingFlights] = useState([]);
+  const [departingFlight, setDepartingFlight] = useState();
+  const [arrivingFlight, setArrivingFlight] = useState();
+  const [searched, setSearch] = useState();
 
   const handleSearch = async () => {
     try {
@@ -24,11 +27,26 @@ function Search() {
       const { value } = response.data;
 
       const allDeparting = value.responseFlights;
-      setDepartingFlights(allDeparting);
-    } 
-    catch (error) 
-    {
+      console.log(allDeparting[0]);
+      setFlights(allDeparting);
+      setSearch(true);
+    }
+    catch (error) {
       console.error('Failed to fetch flight data:', error);
+    }
+  };
+
+  const setFlight = (flight) => {
+    if (departingFlight == null) {
+      setDepartingFlight(flight);
+      console.log(flight);
+    }
+    else if (arrivingFlight == null) {
+      setArrivingFlight(flight);
+      console.log(flight);
+    }
+    else {
+      console.log("Didn't set flight...");
     }
   };
 
@@ -37,18 +55,22 @@ function Search() {
       <div data-aos='fade-up' data-aos-duration='2500' className="sectionContainer">
         <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
           <div>
-            <label>Departure Airport:</label>
-            <input type="text" value={departureAirport} onChange={(e) => setDepartureAirport(e.target.value)} />
-
-            <label>Arrival Airport:</label>
-            <input type="text" value={arrivalAirport} onChange={(e) => setArrivalAirport(e.target.value)} />
-          </div>
-          <div>
-            <label>Departure Date:</label>
-            <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} />
-
-            <label>Arrival Date:</label>
-            <input type="date" value={arrivalDate} onChange={(e) => setArrivalDate(e.target.value)} />
+            <li>
+              <label>Departure Airport:</label>
+              <input type="text" value={departureAirport} onChange={(e) => setDepartAirport(e.target.value)} />
+            </li>
+            <li>
+              <label>Departure Date:</label>
+              <input type="date" value={departureDate} onChange={(e) => setDepartDateTime(e.target.value)} />
+            </li>
+            <li>
+              <label>Arrival Airport:</label>
+              <input type="text" value={arrivalAirport} onChange={(e) => setArriveAirport(e.target.value)} />
+            </li>
+            <li>
+              <label>Arrival Date:</label>
+              <input type="date" value={arrivalDate} onChange={(e) => setArriveDateTime(e.target.value)} />
+            </li>
           </div>
           <div data-aos='fade-up' data-aos-duration='2000' className="searchInputs flex">
             <button type="submit" className='btn btnBlock flex'>Search Flights</button>
@@ -56,9 +78,69 @@ function Search() {
         </form>
       </div>
       <div>
-        {departingFlights.map(item => {
-          return <li>{item.flightNumber}, {item.departAirport}, {item.departDateTime}, {item.arriveAirport}, {item.arriveDateTime}</li>;
-        })}
+        <br></br>
+        <li>
+          {(departingFlight) &&
+            <li>
+              <li>
+                Selected departing flight:
+              </li>
+              <li>
+                Flight Num: {departingFlight.flightNumber}
+              </li>
+              <li>
+                Departure Airport: {departingFlight.departAirport}
+              </li>
+              <li>
+                Departure Date/Time: {departingFlight.departDateTime}
+              </li>
+              <li>
+                Arrival Airport: {departingFlight.arriveAirport}
+              </li>
+              <li>
+                Arrival Date/Time:{departingFlight.arriveDateTime}
+              </li>
+              <br></br>
+            </li>}
+          {(arrivingFlight) &&
+            <li>
+              <li>
+                Selected arriving flight:
+              </li>
+              <li>
+                Flight Num: {arrivingFlight.flightNumber}
+              </li>
+              <li>
+                Departure Airport: {arrivingFlight.departAirport}
+              </li>
+              <li>
+                Departure Date/Time: {arrivingFlight.departDateTime}
+              </li>
+              <li>
+                Arrival Airport: {arrivingFlight.arriveAirport}
+              </li>
+              <li>
+                Arrival Date/Time:{arrivingFlight.arriveDateTime}
+              </li>
+            </li>}
+          {(searched) && (!departingFlight) && ("Select departing flight:")}
+          {(searched) && (departingFlight) && (!arrivingFlight) && ("Select arriving flight:")}
+        </li>
+        <br></br>
+        <ul>
+          {((!departingFlight) || (!arrivingFlight)) && flights.map((item, i) => (
+            <li key={i}>
+              <li>Flight Num: {item.flightNumber}</li>
+              <li>Departure Airport: {item.departAirport}</li>
+              <li>Departure Date: {new Date(item.departDateTime || "").toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric' })}</li>
+              <li>Departure Time: {new Date(item.departDateTime || "").toLocaleString([], { hour: '2-digit', minute: '2-digit' })}</li>
+              <li>Arrival Airport: {item.arriveAirport}</li>
+              <li>Arrival Date: {new Date(item.arriveDateTime || "").toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric' })}</li>
+              <li>Arrival Time: {new Date(item.arriveDateTime || "").toLocaleString([], { hour: '2-digit', minute: '2-digit' })}</li>
+              <button style={{ marginLeft: "auto" }} className='btn btnBlock flex' onClick={() => setFlight?.(item)}>Select Flight</button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
