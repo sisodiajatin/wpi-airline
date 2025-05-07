@@ -18,10 +18,12 @@ namespace Backend.Repository
             _mapper = mapper;
         }
 
-        public async Task<ActionResult<SearchResponseDTO>> SearchFlights(SearchDTO flightSearch)
+        public async Task<ActionResult<SearchResponseDTO>> SearchFlights(SearchDTO search)
         {
-            var flights = await _context.Deltas.Where(f => f.DepartAirport.Contains(flightSearch.DepartureAirport)
-                                            && f.DepartDateTime.Date == flightSearch.DepartureDateTime.Date).ToListAsync();
+            var flights = await _context.Deltas.Where(f => f.DepartAirport.Contains(search.DepartureAirport)
+                                            && f.DepartDateTime.Date == search.DepartureDateTime.Date
+                                            && f.ArriveAirport.Contains(search.ArrivalAirport)
+                                            && f.ArriveDateTime.Date == search.ArrivalDate).ToListAsync();
             var mappedFlights = _mapper.Map<IEnumerable<FlightDTO>>(flights);
 
             var response = new SearchResponseDTO
