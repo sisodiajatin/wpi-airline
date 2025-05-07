@@ -102,7 +102,7 @@ function Search() {
               </li>
               <br></br>
             </li>}
-            {(arrivingFlight) &&
+          {(arrivingFlight) &&
             <li>
               <li>
                 Selected arriving flight:

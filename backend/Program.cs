@@ -8,7 +8,6 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAutoMapper(typeof(Backend.Mapping.MappingProfile));
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION");
-// Ex. connection string: "server=127.0.0.1;port=3306;uid=root;pwd=password;database=flightdata"
 
 builder.Services.AddCors(options =>
 {
